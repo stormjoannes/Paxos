@@ -1,12 +1,19 @@
 class network(object):
-    def __init__(self) -> None:
-        pass
+    def __init__(self, queue: list) -> None:
+        self.queue = queue
 
-    def Queue_Message(self, m):
+    def QueueMessage(self, m):
         """"Add message to end of network(que)"""
-        pass
+        self.queue.append(m)
 
-    def Extract_Message(self):
-        """Find first message in que so that if 'm.src.failed=false' and 'm.dst.failed=false' message
+    def ExtractMessage(self):
+        """Find first message in queue so that if 'm.src.failed=false' and 'm.dst.failed=false' message
         gets deleted from network and gets returned"""
-        pass
+        msg = self.queue[0]
+        source = msg.src
+        destination = msg.dst
+        if source.failed == False and destination.failed == False:
+            self.queue.remove(msg)
+            return msg.value
+        else:
+            return None

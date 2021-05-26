@@ -1,8 +1,6 @@
 class Message(object):
-    def __init__(self, src, dst, type) -> None:
-        self.src = src
-        self.dst = dst
-        self.type = type
-
-    def msg(self):
-        pass
+    def __init__(self) -> None:
+        self.src = None
+        self.dst = None
+        self.type = None
+        self.value = None
