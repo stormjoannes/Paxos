@@ -9,18 +9,21 @@ class Proposer(object):
         self.network = network
         self.promised = 0
         self.accepted = 0
+        self.value = None
         self.acceptedValue = None
         self.globalProposals = None
 
-    def propose(self):
+    def propose(self, value):
         # je gaat proposen prepare bericht uitsturen/ ontvangt alleen proposer
+        self.value = value
         self.proposeID = self.globalProposals + 1
         for acceptor in self.acceptors:
             m = msg.Message()
             m.src = self
             m.dst = acceptor
             m.type = 'prepare'
-            m.value = None
+            m.value = value
+            m.extra = f'n={self.proposeID}'
 
             self.network.QueueMessage(m)
         return self.proposeID
@@ -36,6 +39,7 @@ class Proposer(object):
                 m.dst = acceptor
                 m.type = 'accept'
                 m.value = value
+                m.extra = f'n={self.proposeID} v={value}'
 
                 self.network.QueueMessage(m)
             self.promised = 0
@@ -53,7 +57,7 @@ class Proposer(object):
     def deliverMessage(self, m):
         """If this method gets called, does what message says and goes back to sleep."""
         if m.type == 'propose':
-            self.propose()
+            return self.propose(m.value)
         elif m.type == 'promise':
             self.promise(m.value)
         elif m.type == 'accepted' or m.type == 'rejected':

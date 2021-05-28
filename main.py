@@ -14,13 +14,13 @@ def createComputer(amount, type, network, acceptors=None):
     computerSet = set()
     for i in range(amount):
         if type == 'P':
-            computerSet.add(pp.Proposer(type + str(i), acceptors, network))
+            computerSet.add(pp.Proposer(type + str(i + 1), acceptors, network))
         else:
-            computerSet.add(ap.Acceptor(type + str(i), network))
+            computerSet.add(ap.Acceptor(type + str(i + 1), network))
 
     return computerSet
 
-def Simulatie(n_p, n_a, tmax, E):
+def Simulatie(n_p, n_a, tmax, E, proposals):
     """Initialize Proposer and Acceptor sets, create network"""
     N = net.network()
     A = createComputer(n_a, 'A', N)
@@ -29,6 +29,10 @@ def Simulatie(n_p, n_a, tmax, E):
     for t in range(tmax):
         # If there are no messages or events, the simulation will end.
         if len(N.queue) == 0 and len(E) == 0:
+            print('\n')
+            for proposer in P:
+                print(f'{proposer.id} heeft wel consensus (voorgesteld: {proposer.value}, geaccepteerd: '
+                      f'{proposer.acceptedValue})')
             return
 
         for proposer in P:
@@ -56,23 +60,23 @@ def Simulatie(n_p, n_a, tmax, E):
                 m.dst = pi_c
                 m.value = pi_v
                 m.tick = t
-                pi_c.deliverMessage(m)
+                m.extra = f'v={pi_v}'
+                x = pi_c.deliverMessage(m)
+                if x is not None:
+                    proposals = x
 
         else:
             m = N.ExtractMessage()
-            print(m.src, m.dst, m.type, m.value)
             if m is not None:
-                m.dst.deliverMessage(m)
+                x = m.dst.deliverMessage(m)
+                if x is not None:
+                    proposals = x
 
         output(t, m)
 
-    print('\n')
-    for proposer in P:
-        print(f'{proposer.id} heeft wel consensus (voorgesteld: {proposer.proposeID}, geaccepteerd: '
-              f'{proposer.acceptedValue})')
-
 def output(tick, msg):
-    print(f'{tick}: {msg.src} -> {msg.dst.id} {msg.type} extra')
+    src = '  ' if msg.src is None else msg.src.id
+    print(f'{tick}: {src} -> {msg.dst.id} {msg.type} {msg.extra}')
 
 
-Simulatie(amountProposers, amountAcceptors, maxTicks, events)
+Simulatie(amountProposers, amountAcceptors, maxTicks, events, proposals)

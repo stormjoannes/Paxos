@@ -4,3 +4,4 @@ class Message(object):
         self.dst = None
         self.type = None
         self.value = None
+        self.extra = None
