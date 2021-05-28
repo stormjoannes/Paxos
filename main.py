@@ -1,28 +1,30 @@
-from paxos import computer as pc
+from paxos import proposer as pp
+from paxos import acceptor as ap
 from paxos import message as msg
 from paxos import network as net
 
 proposals = 0
 
+events = [[0, [], [], 1, 42]]
+maxTicks = 15
+amountProposers = 1
+amountAcceptors = 3
 
-def createComputer(amount, type):
+def createComputer(amount, type, network, acceptors=None):
     computerSet = set()
     for i in range(amount):
         if type == 'P':
-            computerSet.add(pc.Computer(type + str(i), True))
+            computerSet.add(pp.Proposer(type + str(i), acceptors, network))
         else:
-            computerSet.add(pc.Computer(type + str(i), False))
+            computerSet.add(ap.Acceptor(type + str(i), network))
 
     return computerSet
 
 def Simulatie(n_p, n_a, tmax, E):
     """Initialize Proposer and Acceptor sets, create network"""
-    P = createComputer(n_p, 'P')
-    A = createComputer(n_a, 'A')
-    N = net.network([])
-
-    print(P, '\n')
-    print(A)
+    N = net.network(E)
+    A = createComputer(n_a, 'A', N)
+    P = createComputer(n_p, 'P', N, A)
 
     for t in range(tmax):
         # If there are no messages or events, the simulation will end.
@@ -30,10 +32,15 @@ def Simulatie(n_p, n_a, tmax, E):
             return
 
         # Process event E if existing
-        e = [x for x in E if x[0] == t]
+        for x in E:
+            print(x, 'boep')
+            if x[0] == t:
+                e = x
+
         if e is not None:
             E.remove(e)
-            (t, F, R, pi_c, pi_v) = e
+            t, F, R, pi_c, pi_v = e
+            pi_c = list(P)[pi_c - 1]
             for c in F:
                 c.failed = True
             for c in R:
@@ -44,11 +51,21 @@ def Simulatie(n_p, n_a, tmax, E):
                 m.src = None  # PROPOSE-message begin out of network
                 m.dst = pi_c
                 m.value = pi_v
-                pi_c.DeliverMessage(m)
+                pi_c.deliverMessage(m)
 
         else:
             m = N.ExtractMessage()
             if m is not None:
-                m.dst.DeliverMessage(m)
+                m.dst.deliverMessage(m)
 
-Simulatie(1, 2)
+        output(t, m)
+    print('\n')
+    for proposer in P:
+        print(f'{proposer.id} heeft wel consensus (voorgesteld: {proposer.proposeID}, geaccepteerd: '
+              f'{proposer.acceptedValue})')
+
+def output(tick, msg):
+    print(f'{tick}: {msg.src} -> {msg.dst.id} {msg.type} extra')
+
+
+Simulatie(amountProposers, amountAcceptors, maxTicks, events)
