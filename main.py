@@ -31,10 +31,10 @@ def createEvent():
             E.append([int(inp[0]), [], [], int(inp[-2]) - 1, int(inp[-1])])
 
         elif inp[1] == "fail":
-            E.append([int(inp[0]), [int(inp[-1]) - 1], [], None, None])
+            E.append([int(inp[0]), [int(inp[-1])], [], None, None])
 
         elif inp[1] == "recover":
-            E.append([int(inp[0]), [], [int(inp[-1]) - 1], None, None])
+            E.append([int(inp[0]), [], [int(inp[-1])], None, None])
 
         else:
             print("This input is invalid. Pls try again.")
@@ -81,25 +81,23 @@ def Simulatie(n_p, n_a, tmax, E, proposals):
         if E == []:
             e = None
 
+        print(e, 'eeeeeeeeeeeeee', t)
         if e is not None:
-            # print(e, 'e')
-            # print(E, 'E')
             E.remove(e)
             t, F, R, pi_c, pi_v = e
 
             for prop in P:
-                for fail in F:
-                    print(fail, prop.id)
-                    if str(fail) in prop.id:
-                        # print(prop)
-                        F = prop
+                for i in range(len(F)):
+                    if str(F[i]) in prop.id:
+                        F[i] = prop
 
             for prop in P:
-                for rec in R:
-                    if str(rec) in prop:
-                        R = prop
+                for i in range(len(R)):
+                    if str(R[i]) in prop:
+                        R[i] = prop
 
-            pi_c = list(P)[pi_c - 1]
+            pi_c = list(P)[pi_c - 1] if pi_c is not None else None
+            print(pi_c, 'hoiiiiiiiiiiiiiiii', t)
             for c in F:
                 c.failed = True
             for c in R:
@@ -119,6 +117,7 @@ def Simulatie(n_p, n_a, tmax, E, proposals):
         else:
             # print(N.queue)
             m = N.ExtractMessage()
+            print(m.type, 'hoi')
             if m is not None:
                 x = m.dst.deliverMessage(m)
                 if x is not None:
@@ -127,6 +126,8 @@ def Simulatie(n_p, n_a, tmax, E, proposals):
         output(t, m)
 
 def output(tick, msg):
+    if msg == None:
+        return
     src = '  ' if msg.src is None else msg.src.id
     print(f'{tick}: {src} -> {msg.dst.id} {msg.type} {msg.extra}')
 

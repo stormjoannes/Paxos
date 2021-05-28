@@ -12,8 +12,13 @@ class network(object):
         msg = self.queue[0]
         source = msg.src
         destination = msg.dst
+        print(source.failed, destination.failed)
         if source.failed == False and destination.failed == False:
             self.queue.remove(msg)
             return msg
         else:
+            if source.failed == True:
+                print(f'** {source.id} kapot **')
+            else:
+                print(f'** {destination.id} kapot **')
             return None
