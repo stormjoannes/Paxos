@@ -69,22 +69,29 @@ def Simulatie(n_p, n_a, tmax, E, proposals):
             proposer.globalProposals = proposals
 
         # Process event E if existing
+        # print(E)
         for x in E:
-            print(t)
+            # print(t)
             if x[0] == t:
                 e = x
+                break
+            else:
+                # print(t)
+                e = None
         if E == []:
             e = None
 
         if e is not None:
-            print(e, 'e')
-            print(E, 'E')
+            # print(e, 'e')
+            # print(E, 'E')
             E.remove(e)
             t, F, R, pi_c, pi_v = e
 
             for prop in P:
                 for fail in F:
-                    if str(fail) in prop:
+                    print(fail, prop.id)
+                    if str(fail) in prop.id:
+                        # print(prop)
                         F = prop
 
             for prop in P:
@@ -110,6 +117,7 @@ def Simulatie(n_p, n_a, tmax, E, proposals):
                     proposals = x
 
         else:
+            # print(N.queue)
             m = N.ExtractMessage()
             if m is not None:
                 x = m.dst.deliverMessage(m)
@@ -125,4 +133,4 @@ def output(tick, msg):
 
 # amountProposers, amountAcceptors, maxTicks, events = createEvent()
 # Simulatie(amountProposers, amountAcceptors, maxTicks, events, proposals)
-Simulatie(2, 3, 50, [[0, [], [], 0, 42], [8, [0], [], None, None], [11, [], [], 1, 37], [26, [], [0], None, None]], proposals)
+Simulatie(2, 3, 50, [[0, [], [], 0, 42], [8, [1], [], None, None], [11, [], [], 1, 37], [26, [], [1], None, None]], proposals)
