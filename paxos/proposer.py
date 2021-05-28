@@ -9,6 +9,7 @@ class Proposer(object):
         self.network = network
         self.promised = 0
         self.accepted = 0
+        self.rejected = 0
         self.value = None
         self.acceptedValue = None
         self.globalProposals = None
@@ -52,7 +53,11 @@ class Proposer(object):
                 self.acceptedValue = m.value
                 self.accepted = 0
         else:
-            return
+            self.reject += 1
+            if self.reject > (len(self.acceptors) + 1) / 2:
+                self.reject = 0
+                self.accepted = 0
+
 
     def deliverMessage(self, m):
         """If this method gets called, does what message says and goes back to sleep."""

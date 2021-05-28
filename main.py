@@ -5,10 +5,6 @@ from paxos import network as net
 
 proposals = 0
 
-# events = [[0, [], [], 1, 42], [8, [0], [], None, None], [11, [], [], 2, 37], [26, [], [0], 1, None]]
-# maxTicks = 15
-# amountProposers = 1
-# amountAcceptors = 3
 
 def createEvent():
     stop = False
@@ -74,14 +70,28 @@ def Simulatie(n_p, n_a, tmax, E, proposals):
 
         # Process event E if existing
         for x in E:
+            print(t)
             if x[0] == t:
                 e = x
         if E == []:
             e = None
 
         if e is not None:
+            print(e, 'e')
+            print(E, 'E')
             E.remove(e)
             t, F, R, pi_c, pi_v = e
+
+            for prop in P:
+                for fail in F:
+                    if str(fail) in prop:
+                        F = prop
+
+            for prop in P:
+                for rec in R:
+                    if str(rec) in prop:
+                        R = prop
+
             pi_c = list(P)[pi_c - 1]
             for c in F:
                 c.failed = True
@@ -113,5 +123,6 @@ def output(tick, msg):
     print(f'{tick}: {src} -> {msg.dst.id} {msg.type} {msg.extra}')
 
 
-amountProposers, amountAcceptors, maxTicks, events = createEvent()
-Simulatie(amountProposers, amountAcceptors, maxTicks, events, proposals)
+# amountProposers, amountAcceptors, maxTicks, events = createEvent()
+# Simulatie(amountProposers, amountAcceptors, maxTicks, events, proposals)
+Simulatie(2, 3, 50, [[0, [], [], 0, 42], [8, [0], [], None, None], [11, [], [], 1, 37], [26, [], [0], None, None]], proposals)
