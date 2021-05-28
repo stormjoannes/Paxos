@@ -5,10 +5,30 @@ from paxos import network as net
 
 proposals = 0
 
-events = [[0, [], [], 1, 42]]
+events = [[0, [], [], 1, 42], [8, [0], [], None, None], [11, [], [], 2, 37], [26, [], [0], 1, None]]
 maxTicks = 15
 amountProposers = 1
 amountAcceptors = 3
+
+def createEvent():
+    stop = False
+    E = []
+
+    PAT = input('Proposers, Acceptors, Ticks: ')
+    PAT = PAT.split(' ')
+    P, A, tmax = PAT
+
+    while stop == False:
+        temp = []
+        inp = input('Event: ')
+        inp = inp.split(' ')
+        temp.append(inp[0])
+
+
+
+        if 'end' in inp.lower():
+            stop = True
+    print(E)
 
 def createComputer(amount, type, network, acceptors=None):
     computerSet = set()
@@ -78,5 +98,5 @@ def output(tick, msg):
     src = '  ' if msg.src is None else msg.src.id
     print(f'{tick}: {src} -> {msg.dst.id} {msg.type} {msg.extra}')
 
-
-Simulatie(amountProposers, amountAcceptors, maxTicks, events, proposals)
+createEvent()
+# Simulatie(amountProposers, amountAcceptors, maxTicks, events, proposals)
