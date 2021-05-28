@@ -5,10 +5,10 @@ from paxos import network as net
 
 proposals = 0
 
-events = [[0, [], [], 1, 42], [8, [0], [], None, None], [11, [], [], 2, 37], [26, [], [0], 1, None]]
-maxTicks = 15
-amountProposers = 1
-amountAcceptors = 3
+# events = [[0, [], [], 1, 42], [8, [0], [], None, None], [11, [], [], 2, 37], [26, [], [0], 1, None]]
+# maxTicks = 15
+# amountProposers = 1
+# amountAcceptors = 3
 
 def createEvent():
     stop = False
@@ -16,19 +16,34 @@ def createEvent():
 
     PAT = input('Proposers, Acceptors, Ticks: ')
     PAT = PAT.split(' ')
+    PAT = [int(x) for x in PAT]
     P, A, tmax = PAT
 
     while stop == False:
-        temp = []
         inp = input('Event: ')
+
         inp = inp.split(' ')
-        temp.append(inp[0])
+        inp = [x.lower() for x in inp]
 
+        if inp == ['']:
+            continue
 
-
-        if 'end' in inp.lower():
+        elif inp[1] == 'end':
             stop = True
-    print(E)
+
+        elif inp[1] == "propose":
+            E.append([int(inp[0]), [], [], int(inp[-2]) - 1, int(inp[-1])])
+
+        elif inp[1] == "fail":
+            E.append([int(inp[0]), [int(inp[-1]) - 1], [], None, None])
+
+        elif inp[1] == "recover":
+            E.append([int(inp[0]), [], [int(inp[-1]) - 1], None, None])
+
+        else:
+            print("This input is invalid. Pls try again.")
+
+    return P, A, tmax, E
 
 def createComputer(amount, type, network, acceptors=None):
     computerSet = set()
@@ -49,9 +64,8 @@ def Simulatie(n_p, n_a, tmax, E, proposals):
     for t in range(tmax):
         # If there are no messages or events, the simulation will end.
         if len(N.queue) == 0 and len(E) == 0:
-            print('\n')
             for proposer in P:
-                print(f'{proposer.id} heeft wel consensus (voorgesteld: {proposer.value}, geaccepteerd: '
+                print(f'\n{proposer.id} heeft wel consensus (voorgesteld: {proposer.value}, geaccepteerd: '
                       f'{proposer.acceptedValue})')
             return
 
@@ -98,5 +112,6 @@ def output(tick, msg):
     src = '  ' if msg.src is None else msg.src.id
     print(f'{tick}: {src} -> {msg.dst.id} {msg.type} {msg.extra}')
 
-createEvent()
-# Simulatie(amountProposers, amountAcceptors, maxTicks, events, proposals)
+
+amountProposers, amountAcceptors, maxTicks, events = createEvent()
+Simulatie(amountProposers, amountAcceptors, maxTicks, events, proposals)
