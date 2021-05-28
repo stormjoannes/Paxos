@@ -22,20 +22,24 @@ def createComputer(amount, type, network, acceptors=None):
 
 def Simulatie(n_p, n_a, tmax, E):
     """Initialize Proposer and Acceptor sets, create network"""
-    N = net.network(E)
+    N = net.network()
     A = createComputer(n_a, 'A', N)
     P = createComputer(n_p, 'P', N, A)
 
     for t in range(tmax):
         # If there are no messages or events, the simulation will end.
-        if len(N.queue) == 0 or len(E) == 0:
+        if len(N.queue) == 0 and len(E) == 0:
             return
+
+        for proposer in P:
+            proposer.globalProposals = proposals
 
         # Process event E if existing
         for x in E:
-            print(x, 'boep')
             if x[0] == t:
                 e = x
+        if E == []:
+            e = None
 
         if e is not None:
             E.remove(e)
@@ -51,14 +55,17 @@ def Simulatie(n_p, n_a, tmax, E):
                 m.src = None  # PROPOSE-message begin out of network
                 m.dst = pi_c
                 m.value = pi_v
+                m.tick = t
                 pi_c.deliverMessage(m)
 
         else:
             m = N.ExtractMessage()
+            print(m.src, m.dst, m.type, m.value)
             if m is not None:
                 m.dst.deliverMessage(m)
 
         output(t, m)
+
     print('\n')
     for proposer in P:
         print(f'{proposer.id} heeft wel consensus (voorgesteld: {proposer.proposeID}, geaccepteerd: '

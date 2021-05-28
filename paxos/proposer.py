@@ -10,9 +10,11 @@ class Proposer(object):
         self.promised = 0
         self.accepted = 0
         self.acceptedValue = None
+        self.globalProposals = None
 
     def propose(self):
         # je gaat proposen prepare bericht uitsturen/ ontvangt alleen proposer
+        self.proposeID = self.globalProposals + 1
         for acceptor in self.acceptors:
             m = msg.Message()
             m.src = self
@@ -21,6 +23,7 @@ class Proposer(object):
             m.value = None
 
             self.network.QueueMessage(m)
+        return self.proposeID
 
     def promise(self, value):
         # ontvangt alleen proposer

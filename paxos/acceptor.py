@@ -41,7 +41,7 @@ class Acceptor(object):
 
             self.network.QueueMessage(m)
 
-    def DeliverMessage(self, m):
+    def deliverMessage(self, m):
         """If this method gets called, does what message says and goes back to sleep."""
         if m.type == 'prepare':
             self.prepare(m.src.proposeID, m.src)

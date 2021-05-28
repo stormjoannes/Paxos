@@ -1,6 +1,6 @@
 class network(object):
-    def __init__(self, queue: list) -> None:
-        self.queue = queue
+    def __init__(self) -> None:
+        self.queue = []
 
     def QueueMessage(self, m):
         """"Add message to end of network(que)"""
@@ -14,6 +14,6 @@ class network(object):
         destination = msg.dst
         if source.failed == False and destination.failed == False:
             self.queue.remove(msg)
-            return msg.value
+            return msg
         else:
             return None
