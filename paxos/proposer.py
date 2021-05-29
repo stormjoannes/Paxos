@@ -68,3 +68,6 @@ class Proposer(object):
         elif m.type == 'accepted' or m.type == 'rejected':
             self.acceptReject(m)
 
+
+    def __str__(self):
+        return f'proposer {self.proposeID}, {self.id}, {self.value}'
