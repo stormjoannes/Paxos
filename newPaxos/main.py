@@ -20,6 +20,8 @@ def create_computers(amount:int, ctype:str, network:n.Network, acceptors=None):
 
 def simulation(amount_p, amount_a, tmax, E):
     """"""
+
+    gpid = 0
     N = n.Network
     A = create_computers(amount_a, "A", N)  # set with acceptors
     P = create_computers(amount_p, "P", N, A)  # set with proposers
@@ -49,13 +51,12 @@ def simulation(amount_p, amount_a, tmax, E):
                 computer.failed = False
 
             if pi_v is not None and pi_c is not None:
-                message = m.Message()
-                message.type = "PROPOSE"
-                message.dst = pi_c
-                message.value = pi_v
+                gpid += 1
+                pi_c.global_p_id = gpid
+                message = m.Message(None, pi_c, "PROPOSE", pi_v)
                 pi_c.DeliverMessage(message)
 
         else:
-            message = N.ExtractMessage()
+            message = N.extract_message()
             if message is not None:
                 message.dst.DeliverMessage(m)
