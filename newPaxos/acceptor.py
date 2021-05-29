@@ -15,7 +15,7 @@ class Acceptor(object):
             m = ms.Message(self, message.src, 'promise', [message.value, self.priorID, self.priorValue])
             self.network.queue_message(m)
             self.priorID = message.value
-            self.priorValue = message.src.value
+            self.priorValue = message.value
 
     def accept(self, message):
         if message.value[0] >= self.priorID:
@@ -26,10 +26,11 @@ class Acceptor(object):
             m = ms.Message(self, message.src, 'rejected', message.value)
             self.network.queue_message(m)
 
-    def DeliverMessage(self, message):
+    def receive_message(self, message):
         """The computer does what the given message says. It can call QueueMessage"""
-        if message.type == 'prepare':
+        lower_case = message.mtype.lower()
+        if lower_case == 'prepare':
             self.prepare(message)
-        elif message.type == 'accept':
-            self.accept(message.value)
+        elif lower_case == 'accept':
+            self.accept(message)
         pass
