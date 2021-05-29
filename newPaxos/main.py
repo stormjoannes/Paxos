@@ -18,17 +18,11 @@ def create_computers(amount:int, ctype:str, network:n.Network, acceptors=None):
     return computerset
 
 
-def simulatie(amount_p, amount_a, tmax, E):
+def simulation(amount_p, amount_a, tmax, E):
+    """"""
     N = n.Network
     A = create_computers(amount_a, "A", N)  # set with acceptors
     P = create_computers(amount_p, "P", N, A)  # set with proposers
-
-
-def simulation(aantal_proposers, aantal_acceptors, tmax, E):
-    """"""
-    P = {} # Set with proposers
-    A = {} # Set with acceptors
-    N = n.Network() # Creates network
 
     for tick in range(0, tmax):
         if len(N.queue) == 0 or len(E) == 0:
