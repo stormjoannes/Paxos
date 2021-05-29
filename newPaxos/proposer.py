@@ -24,7 +24,7 @@ class Proposer(object):
             Receive a promise message from the acceptors
             Send new accept message to network queue for acceptors to receive
         """
-        
+
 
 
     def DeliverMessage(self, message):

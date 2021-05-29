@@ -22,7 +22,7 @@ def simulation(amount_p, amount_a, tmax, E):
     """"""
 
     gpid = 0
-    N = n.Network
+    N = n.Network()
     A = create_computers(amount_a, "A", N)  # set with acceptors
     P = create_computers(amount_p, "P", N, A)  # set with proposers
 
