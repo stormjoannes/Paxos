@@ -5,3 +5,6 @@ class Message(object):
         self.type = None
         self.value = None
         self.extra = None
+
+    def __str__(self):
+        return f'Message({self.src},{self.dst},{self.type},{self.value}, {self.extra})'

@@ -7,6 +7,20 @@ proposals = 0
 
 
 def createEvent():
+    """ Create an event based on the examples on canvas
+        Correct inputs:
+
+        First input to start an process: amount of proposers, amount of acceptors, amount of ticks
+        Example: 1, 2, 15
+
+        Second input is creating an event that will happen in an process this can be 4 things:
+
+            - Telling an proposer to propose something at an certain tick (1 propose 1 42)
+            - Telling an the simulation to fail an computer at an certain tick (5 fail proposer 1)
+            - Telling an the simulation to recover an computer at an certain tick (10 recover proposer 1)
+            - Ending the simulation/process (0 END)
+
+    """
     stop = False
     E = []
 
@@ -81,7 +95,6 @@ def Simulatie(n_p, n_a, tmax, E, proposals):
         if E == []:
             e = None
 
-        print(e, 'eeeeeeeeeeeeee', t)
         if e is not None:
             E.remove(e)
             t, F, R, pi_c, pi_v = e
@@ -97,8 +110,8 @@ def Simulatie(n_p, n_a, tmax, E, proposals):
                         R[i] = prop
 
             pi_c = list(P)[pi_c - 1] if pi_c is not None else None
-            print(pi_c, 'hoiiiiiiiiiiiiiiii', t)
             for c in F:
+                print("tick", t, "broken")
                 c.failed = True
             for c in R:
                 c.failed = False
