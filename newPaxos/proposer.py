@@ -1,38 +1,54 @@
 import message as ms
 
+
 class Proposer(object):
     def __init__(self, name, network, acceptors):
         self.name = name
         self.network = network
         self.acceptors = acceptors
         self.failed = False
-        self.global_p_id = None
+        self.propose_id = None
+        self.a_value = None
 
-    def propose(self, value):
+    def deliver_message(self, value, mtype):
         """
-            Receive a propose message
-            Send new prepare message to network queue for acceptors to receive
+            Deliver an message to all acceptors based on the given message type
+
+            - if message type is propose, sends an prepare message with the propose id to all acceptors
+            - if message type is promise, sends an accept message with the propose value to all acceptors
         """
         for acceptor in self.acceptors:
-            msg = ms.Message(self, acceptor, 'prepare', value)
+            if mtype == "propose":
+                msg = ms.Message(self, acceptor, 'prepare', self.propose_id)
+            elif mtype == "promise":
+                msg = ms.Message(self, acceptor, "accept", [self.propose_id, value])
 
             self.network.queue_message(msg)
 
-
-    def promise(self, value):
+    def accept_reject(self, message):
         """
-            Receive a promise message from the acceptors
-            Send new accept message to network queue for acceptors to receive
+            Check the amount of acceptors that accepted and the amount that rejected.
         """
 
+        accepted = 0
+        rejected = 0
 
+        if message.type == "accepted":
+            accepted += 1
+        elif message.type == "rejected":
+            rejected += 1
 
-    def DeliverMessage(self, message):
+        if accepted > rejected:
+            self.a_value = accepted
+        else:
+            return "not accepted"
+
+    def receive_message(self, message):
         """The computer does what the given message says. It can call QueueMessage"""
         if message.type == 'propose':
-            self.propose(message.value)
+            self.deliver_message(message.value, 'propose')
         elif message.type == 'promise':
-            self.promise(message.value)
+            self.deliver_message(message.value, 'promise')
         elif message.type == 'accepted' or message.type == 'rejected':
-            self.acceptReject(message)
+            self.accept_reject(message)
         pass

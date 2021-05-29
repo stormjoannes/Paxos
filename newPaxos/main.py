@@ -47,14 +47,14 @@ def simulation(amount_p, amount_a, tmax, E):
                 computer.failed = True
 
             for computer in R:
-                # Repears the ccomputer(s) in R
+                # Repears the computer(s) in R
                 computer.failed = False
 
             if pi_v is not None and pi_c is not None:
                 gpid += 1
-                pi_c.global_p_id = gpid
+                pi_c.propose_id = gpid
                 message = m.Message(None, pi_c, "PROPOSE", pi_v)
-                pi_c.DeliverMessage(message)
+                pi_c.receive_message(message)
 
         else:
             message = N.extract_message()

@@ -10,7 +10,8 @@ class Network(object):
         """Takes the first message that can be send, removes it from queue and returns the message.
            If no message can be send, it returns None."""
         for m in self.queue:
-            if m.src.failed == False and m.dst.failed == False:
+            if m.src.failed is False and m.dst.failed is False:
                 self.queue.remove(m)
                 return m
+
         return None
