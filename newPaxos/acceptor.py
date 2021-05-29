@@ -33,4 +33,3 @@ class Acceptor(object):
             self.prepare(message)
         elif lower_case == 'accept':
             self.accept(message)
-        pass

@@ -18,6 +18,19 @@ def create_computers(amount:int, ctype:str, network, acceptors=None):
     return computerset
 
 
+def get_computer(name, p_set, a_set):
+    """
+        Get the correct proposer or acceptor based on the name given
+    """
+    for proposer in p_set:
+        if proposer.name == name:
+            return proposer
+
+    for acceptor in a_set:
+        if acceptor.name == name:
+            return acceptor
+
+
 def simulation(amount_p, amount_a, tmax, E):
     """"""
 
@@ -42,20 +55,18 @@ def simulation(amount_p, amount_a, tmax, E):
             E.remove(e)
             (t, F, R, pi_c, pi_v) = e
             for computer in F:
+                computer = get_computer(computer, P, A)
                 # Breaks the computer(s) in F
                 computer.failed = True
 
             for computer in R:
+                computer = get_computer(computer, P, A)
                 # Repears the computer(s) in R
                 computer.failed = False
 
             if pi_v is not None and pi_c is not None:
                 gpid += 1
-
-                for proposer in P:
-                    if "P" + str(pi_c) == proposer.name:
-                        pi_c = proposer
-
+                pi_c = get_computer("P" + str(pi_c), P, A)
                 pi_c.propose_id = gpid
                 message = m.Message(None, pi_c, "propose", pi_v)
                 pi_c.receive_message(message)
@@ -78,4 +89,4 @@ def output(tick, message):
     print(f'{tick}: {name} -> {message.dst.name} {message.mtype} {message.value}')
 
 
-simulation(1, 3, 20, [[0, [], [], 1, 42]])
+simulation(2, 3, 50, [[0, [], [], 1, 42], [8, ["P1"], [], None, None], [11, [], [], 2, 37], [26, [], ["P1"], None, None]])

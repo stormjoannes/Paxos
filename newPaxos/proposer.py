@@ -8,7 +8,9 @@ class Proposer(object):
         self.acceptors = acceptors
         self.failed = False
         self.propose_id = None
-        self.a_value = None
+        self.accept_count = 0
+        self.reject_count = 0
+        self.propose_value = None
 
     def deliver_message(self, message):
         """
@@ -19,31 +21,34 @@ class Proposer(object):
         """
 
         if message.mtype == "propose":
+            self.propose_value = message.value
             for acceptor in self.acceptors:
                 msg = ms.Message(self, acceptor, 'prepare', self.propose_id)
                 self.network.queue_message(msg)
 
         elif message.mtype == "promise":
-            msg = ms.Message(self, message.src, "accept", [self.propose_id, message.value])
+            msg = ms.Message(self, message.src, "accept", [self.propose_id, self.propose_value])
             self.network.queue_message(msg)
 
+    def resend(self):
+        for acceptor in self.acceptors:
+            msg = ms.Message(self, acceptor, 'prepare', self.propose_id)
+            self.network.queue_message(msg)
 
     def accept_reject(self, message):
         """
             Check the amount of acceptors that accepted and the amount that rejected.
         """
-        accepted = 0
-        rejected = 0
-
         if message.mtype == "accepted":
-            accepted += 1
+            self.accept_count += 1
         elif message.mtype == "rejected":
-            rejected += 1
+            self.reject_count += 1
 
-        if accepted > rejected:
-            self.a_value = message.value
+        if self.accept_count >= self.reject_count:
+            self.propose_value = message.value
+
         else:
-            return "not accepted"
+            self.resend()
 
     def receive_message(self, message):
         """The computer does what the given message says. It can call QueueMessage"""
@@ -54,4 +59,3 @@ class Proposer(object):
             self.deliver_message(message)
         elif lower_case == 'accepted' or lower_case == 'rejected':
             self.accept_reject(message)
-        pass
