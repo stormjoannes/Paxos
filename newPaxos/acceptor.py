@@ -25,11 +25,15 @@ class Acceptor(object):
             It changes its prior id and prior value and sends a accepted message when the check is True.
             Otherwise it changes its prior id and prior value and sends a rejected message.
         """
+        # print("accept message")
         if self.priorID is None or message.value[0] > self.priorID:
+            print("accept prior", message.value)
             self.priorID = message.value[0]
             self.priorValue = message.value[1]
             m = ms.Message(self, message.src, 'accepted', message.value)
+            # print("HALLO")
             self.network.queue_message(m)
+            self.priorValue = None
         else:
             self.priorID = message.value[0]
             self.priorValue = message.value[1]
