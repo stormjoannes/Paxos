@@ -11,12 +11,20 @@ class Acceptor(object):
         self.priorValue = None
 
     def prepare(self, message):
-        """"""
+        """
+            Checks if the previous propose id is smaller than the given id.
+            And sends a promise message back when the given id is bigger than the previous one.
+        """
         if self.previous_propose_id <= message.value:
             m = ms.Message(self, message.src, 'promise', [message.value, self.priorID, self.priorValue])
             self.network.queue_message(m)
 
     def accept(self, message):
+        """
+            Checks if the propose id is larger than the prior id.
+            It changes its prior id and prior value and sends a accepted message when the check is True.
+            Otherwise it changes its prior id and prior value and sends a rejected message.
+        """
         if self.priorID is None or message.value[0] > self.priorID:
             self.priorID = message.value[0]
             self.priorValue = message.value[1]
@@ -29,7 +37,9 @@ class Acceptor(object):
             self.network.queue_message(m)
 
     def receive_message(self, message):
-        """The computer does what the given message says. It can call QueueMessage"""
+        """
+            Calls the right function to react to the message.
+        """
         lower_case = message.mtype.lower()
         if lower_case == 'prepare':
             self.prepare(message)
