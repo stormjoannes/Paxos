@@ -7,6 +7,7 @@ class Proposer(object):
         self.network = network
         self.acceptors = acceptors
         self.failed = False
+        self.begin_id = None
         self.propose_id = None
         self.reject_count = 0
         self.accept_count = 0
@@ -24,6 +25,7 @@ class Proposer(object):
         """
 
         if message.mtype == "propose":
+            self.begin_id = message.value
             self.propose_id = self.global_propose_id + 1
             self.propose_value = message.value
             for acceptor in self.acceptors:
