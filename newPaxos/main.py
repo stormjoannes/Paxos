@@ -18,23 +18,40 @@ def create_computers(amount:int, ctype:str, network, acceptors=None):
     return computerset
 
 
-def get_computer(name, p_set, a_set):
+def get_computer(name, p_set=None, a_set=None):
     """
         Get the correct proposer or acceptor based on the name given
     """
-    for proposer in p_set:
-        if proposer.name == name:
-            return proposer
+    if p_set is not None:
+        for proposer in p_set:
+            if proposer.name == name:
+                return proposer
 
-    for acceptor in a_set:
-        if acceptor.name == name:
-            return acceptor
+    if a_set is not None:
+        for acceptor in a_set:
+            if acceptor.name == name:
+                return acceptor
+
+
+def set_global_p_id(p_set):
+    """
+       updates all proposers global_proposer_id by getting the currently highest propose id
+    """
+    id_lst = []
+
+    for proposer in p_set:
+        id_lst.append(0 if proposer.propose_id is None else proposer.propose_id)
+
+    highest = max(id_lst)
+
+    for proposer in p_set:
+        proposer.global_propose_id = highest
+
 
 
 def simulation(amount_p, amount_a, tmax, E):
     """"""
 
-    gpid = 0
     N = n.Network()
     A = create_computers(amount_a, "A", N)  # set with acceptors
     P = create_computers(amount_p, "P", N, A)  # set with proposers
@@ -43,6 +60,9 @@ def simulation(amount_p, amount_a, tmax, E):
         if len(N.queue) == 0 and len(E) == 0:
             # If the queue or the list with events are empty it simulation is done
             return
+
+
+        set_global_p_id(P)
 
         # Takes the event with the same tick as the tick of the simulation
         e = None
@@ -65,9 +85,7 @@ def simulation(amount_p, amount_a, tmax, E):
                 computer.failed = False
 
             if pi_v is not None and pi_c is not None:
-                gpid += 1
                 pi_c = get_computer("P" + str(pi_c), P, A)
-                pi_c.propose_id = gpid
                 message = m.Message(None, pi_c, "propose", pi_v)
                 pi_c.receive_message(message)
 

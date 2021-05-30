@@ -22,6 +22,7 @@ class Proposer(object):
         """
 
         if message.mtype == "propose":
+            self.propose_id = self.global_propose_id + 1
             self.propose_value = message.value
             for acceptor in self.acceptors:
                 msg = ms.Message(self, acceptor, 'prepare', self.propose_id)
@@ -36,6 +37,8 @@ class Proposer(object):
             if there are more acceptors that rejected than accepted. send an message with the same value but
             with a higher propose_id
         """
+        self.propose_id = self.global_propose_id + 1
+
         for acceptor in self.acceptors:
             msg = ms.Message(self, acceptor, 'prepare', self.propose_id)
             self.network.queue_message(msg)
