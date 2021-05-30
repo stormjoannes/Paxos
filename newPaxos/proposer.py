@@ -29,8 +29,6 @@ class Proposer(object):
                 self.network.queue_message(msg)
 
         elif message.mtype == "promise":
-            print("prior", message.value)
-            # print(message.value[2])
             if message.value[2] is not None:
                 self.propose_value = message.value[2]
                 msg = ms.Message(self, message.src, "accept", [self.propose_id, message.value[2]])
