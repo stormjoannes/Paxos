@@ -9,7 +9,9 @@ class Proposer(object):
         self.failed = False
         self.propose_id = None
         self.reject_count = 0
+        self.accept_count = 0
         self.propose_value = None
+        self.accepted_value = None
         self.global_propose_id = None
         self.count = 0
 
@@ -56,11 +58,18 @@ class Proposer(object):
 
         if message.mtype == "rejected":
             self.reject_count += 1
+        else:
+            self.accept_count += 1
 
         if self.count == len(self.acceptors):
             if round(len(self.acceptors) / 2) <= self.reject_count:
                 self.reject_count = 0
                 self.resend()
+
+        if self.count == len(self.acceptors):
+            if round(len(self.acceptors) / 2) <= self.accept_count:
+                self.accept_count = 0
+                self.accepted_value = message.value
 
             self.count = 0
 
