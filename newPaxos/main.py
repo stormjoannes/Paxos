@@ -60,6 +60,7 @@ def simulation(amount_p, amount_a, tmax, E):
     for tick in range(0, tmax):
         if len(N.queue) == 0 and len(E) == 0:
             # If the queue or the list with events are empty it simulation is done
+            output(tick, end=P)
             return
 
 
@@ -79,33 +80,61 @@ def simulation(amount_p, amount_a, tmax, E):
                 computer = get_computer(computer, P, A)
                 # Breaks the computer(s) in F
                 computer.failed = True
+                output(tick, broken=computer)
 
             for computer in R:
                 computer = get_computer(computer, P, A)
                 # Repears the computer(s) in R
                 computer.failed = False
+                output(tick, repair=computer)
 
             if pi_v is not None and pi_c is not None:
                 pi_c = get_computer("P" + str(pi_c), P, A)
                 message = m.Message(None, pi_c, "propose", pi_v)
                 pi_c.receive_message(message)
+                output(tick, message=message)
 
         else:
             message = N.extract_message()
             if message is not None:
                 message.dst.receive_message(message)
-        output(tick, message)
+            output(tick, message=message)
 
 
-def output(tick, message):
-    if message is None:
-        return "empty"
+def output(tick, message=None, broken=None, repair=None, end=None):
+    if message is not None:
+        if message.src is not None:
+            name = message.src.name
 
-    if message.src is None:
-        name = ' '
+        if message.mtype == "propose":
+            print(f'{tick}:    -> {message.dst.name} {message.mtype} v={message.value}')
+
+        elif message.mtype == "prepare":
+            print(f'{tick}: {name} -> {message.dst.name} {message.mtype} n={message.value}')
+
+        elif message.mtype == "promise":
+            print(f'{tick}: {name} -> {message.dst.name} {message.mtype} n={message.value[0]} (Prior: {message.value[1]}, {message.value[2]})')
+
+        elif message.mtype == "accept" or "accepted" or "rejected":
+            print(f'{tick}: {name} -> {message.dst.name} {message.mtype} n={message.value[0]} v={message.value[1]}')
+
+
+    elif broken is not None:
+        print(f'{tick}: ** {broken.name} kapot **')
+
+    elif repair is not None:
+        print(f'{tick}: ** {repair.name} gerepareerd **')
+
+    elif end is not None:
+        print("")
+        for proposer in end:
+            if proposer.propose_id is not None:
+                print(f'{proposer.name} heeft wel consensus (voorgesteld: {proposer.begin_id}, geaccepteerd: '
+                      f'{proposer.accepted_value[1]})')
+            else:
+                print(f'{proposer.name} heeft geen consensus.')
     else:
-        name = message.src.name
-    print(f'{tick}: {name} -> {message.dst.name} {message.mtype} {message.value}')
+        print(f'{tick}:')
 
 
 simulation(2, 3, 100, [[0, [], [], 1, 42], [8, ["P1"], [], None, None], [11, [], [], 2, 37], [26, [], ["P1"], None, None]])
