@@ -1,5 +1,6 @@
 import message as ms
 
+
 class Acceptor(object):
     def __init__(self, name, network):
         self.name = name
@@ -14,15 +15,16 @@ class Acceptor(object):
         if self.previous_propose_id <= message.value:
             m = ms.Message(self, message.src, 'promise', [message.value, self.priorID, self.priorValue])
             self.network.queue_message(m)
-            self.priorID = message.value
-            self.priorValue = message.value
 
     def accept(self, message):
-        if message.value[0] >= self.priorID:
+        if self.priorID is None or message.value[0] > self.priorID:
             self.priorID = message.value[0]
+            self.priorValue = message.value[1]
             m = ms.Message(self, message.src, 'accepted', message.value)
             self.network.queue_message(m)
         else:
+            self.priorID = message.value[0]
+            self.priorValue = message.value[1]
             m = ms.Message(self, message.src, 'rejected', message.value)
             self.network.queue_message(m)
 

@@ -89,4 +89,4 @@ def output(tick, message):
     print(f'{tick}: {name} -> {message.dst.name} {message.mtype} {message.value}')
 
 
-simulation(2, 3, 50, [[0, [], [], 1, 42], [8, ["P1"], [], None, None], [11, [], [], 2, 37], [26, [], ["P1"], None, None]])
+simulation(2, 3, 100, [[0, [], [], 1, 42], [8, ["P1"], [], None, None], [11, [], [], 2, 37], [26, [], ["P1"], None, None]])

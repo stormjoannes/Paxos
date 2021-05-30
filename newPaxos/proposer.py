@@ -8,9 +8,10 @@ class Proposer(object):
         self.acceptors = acceptors
         self.failed = False
         self.propose_id = None
-        self.accept_count = 0
         self.reject_count = 0
         self.propose_value = None
+        self.global_propose_id = None
+        self.count = 0
 
     def deliver_message(self, message):
         """
@@ -31,6 +32,10 @@ class Proposer(object):
             self.network.queue_message(msg)
 
     def resend(self):
+        """
+            if there are more acceptors that rejected than accepted. send an message with the same value but
+            with a higher propose_id
+        """
         for acceptor in self.acceptors:
             msg = ms.Message(self, acceptor, 'prepare', self.propose_id)
             self.network.queue_message(msg)
@@ -38,17 +43,19 @@ class Proposer(object):
     def accept_reject(self, message):
         """
             Check the amount of acceptors that accepted and the amount that rejected.
+            only check if all acceptors have send a message (count)
         """
-        if message.mtype == "accepted":
-            self.accept_count += 1
-        elif message.mtype == "rejected":
+        self.count += 1
+
+        if message.mtype == "rejected":
             self.reject_count += 1
 
-        if self.accept_count >= self.reject_count:
-            self.propose_value = message.value
+        if self.count == len(self.acceptors):
+            if round(len(self.acceptors) / 2) <= self.reject_count:
+                self.reject_count = 0
+                self.resend()
 
-        else:
-            self.resend()
+            self.count = 0
 
     def receive_message(self, message):
         """The computer does what the given message says. It can call QueueMessage"""
