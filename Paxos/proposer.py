@@ -72,6 +72,13 @@ class Proposer(object):
             elif round(len(self.acceptors) / 2) <= self.accept_count:
                 self.accept_count = 0
                 self.accepted_value = message.value
+
+                if len(self.learners) != 0:
+                    # Empties prior
+                    for acceptor in self.acceptors:
+                        acceptor.priorID = None
+                        acceptor.priorValue = None
+
                 for learner in self.learners:
                     msg = ms.Message(self, learner, 'succes', message.value)
                     self.network.queue_message(msg)

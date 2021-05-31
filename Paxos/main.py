@@ -4,9 +4,56 @@ import learner as l
 import message as m
 import network as n
 
+def get_input():
+    """
+        Creates formatted input for the simulation function by entering the right event commands
+    """
+    stop = False
+    E = []
+
+    PAT = input('Proposers, Acceptors, Learners, Ticks: ')
+    PAT = PAT.split(' ')
+    PAT = [int(x) for x in PAT]
+    P, A, L, tmax = PAT
+
+    while stop == False:
+        inp = input('Event: ')
+
+        inp = inp.split(' ')
+        inp = [x.lower() for x in inp]
+
+        if inp == ['']:
+            continue
+
+        elif inp[1] == 'end':
+            stop = True
+
+        elif inp[1] == "propose":
+            if "_" in inp[-1]:
+                inp[-1] = inp[-1].replace("_", " ")
+
+            try:
+                value = int(inp[-1])
+            except ValueError:
+                value = inp[-1]
+
+            E.append([int(inp[0]), [], [], int(inp[-2]), value])
+
+        elif inp[1] == "fail":
+            E.append([int(inp[0]), [inp[-2][0].upper() + inp[-1]], [], None, None])
+
+        elif inp[1] == "recover":
+            E.append([int(inp[0]), [], [inp[-2][0].upper() + inp[-1]], None, None])
+
+        else:
+            print("This input is invalid. Pls try again.")
+
+    return P, A, L, tmax, E
 
 def create_computers(amount:int, ctype:str, network, acceptors=None, learners=None):
-    """Create an amount of computers (proposers or acceptors) based on the parameters given above"""
+    """
+        Create an amount of computers (proposers or acceptors) based on the parameters given above
+    """
 
     computerset = set()
 
@@ -52,7 +99,9 @@ def set_global_p_id(p_set):
 
 
 def simulation(amount_p, amount_a, amount_l, tmax, E):
-    """"""
+    """
+        Simulate the paxos algorithme
+    """
 
     N = n.Network()
     A = create_computers(amount_a, "A", N)  # set with acceptors
@@ -62,9 +111,8 @@ def simulation(amount_p, amount_a, amount_l, tmax, E):
     for tick in range(0, tmax):
         if len(N.queue) == 0 and len(E) == 0:
             # If the queue or the list with events are empty it simulation is done
-            output(tick, end=P)
+            output(tick, tmax, end=P)
             return
-
 
         set_global_p_id(P)
 
@@ -82,28 +130,31 @@ def simulation(amount_p, amount_a, amount_l, tmax, E):
                 computer = get_computer(computer, P, A)
                 # Breaks the computer(s) in F
                 computer.failed = True
-                output(tick, broken=computer)
+                output(tick, tmax, broken=computer)
 
             for computer in R:
                 computer = get_computer(computer, P, A)
                 # Repears the computer(s) in R
                 computer.failed = False
-                output(tick, repair=computer)
+                output(tick, tmax, repair=computer)
 
             if pi_v is not None and pi_c is not None:
                 pi_c = get_computer("P" + str(pi_c), P, A)
                 message = m.Message(None, pi_c, "propose", pi_v)
                 pi_c.receive_message(message)
-                output(tick, message=message)
+                output(tick, tmax, message=message)
 
         else:
             message = N.extract_message()
             if message is not None:
                 message.dst.receive_message(message)
-            output(tick, message=message)
+            output(tick, tmax, message=message)
 
 
-def output(tick, message=None, broken=None, repair=None, end=None):
+def output(tick, tmax, message=None, broken=None, repair=None, end=None):
+    """
+        Prints rights output lines
+    """
     if message is not None:
         if message.src is not None:
             name = message.src.name
@@ -136,11 +187,10 @@ def output(tick, message=None, broken=None, repair=None, end=None):
             else:
                 print(f'{proposer.name} heeft geen consensus.')
 
+    # if tmax is high its unnecessary to print the ticks where nothing happens
+    elif tmax < 500:
+        print(f'{tick}:')
 
-#simulation(2, 3, 0, 100, [[0, [], [], 1, 42], [8, ["P1"], [], None, None], [11, [], [], 2, 37], [26, [], ["P1"], None, None]])
-simulation(1, 3, 1, 10000, [[0, [], [], 1, "nl: g"], [100, [], [], 1, "nl:ga"],
-                            [200, [], [], 1, "nl:aa"], [300, [], [], 1, "nl:af"],
-                            [400, [], [], 1, "nl:f "], [500, [], [], 1, "en: g"],
-                            [600, [], [], 1, "en:gr"], [700, [], [], 1, "en:re"],
-                            [800, [], [], 1, "en:ea"], [900, [], [], 1, "en:at"],
-                            [1000, [], [], 1, "en:t "]])
+
+amountProposers, amountAcceptors, amountLearners, maxTicks, events = get_input()
+simulation(amountProposers, amountAcceptors, amountLearners, maxTicks, events)
