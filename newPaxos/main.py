@@ -5,16 +5,18 @@ import message as m
 import network as n
 
 
-def create_computers(amount:int, ctype:str, network, acceptors=None):
+def create_computers(amount:int, ctype:str, network, acceptors=None, learners=None):
     """Create an amount of computers (proposers or acceptors) based on the parameters given above"""
 
     computerset = set()
 
     for x in range(1, amount + 1):
         if ctype.upper() == "P":
-            computerset.add(p.Proposer(ctype + str(x), network, acceptors))
-        else:
+            computerset.add(p.Proposer(ctype + str(x), network, acceptors, learners))
+        elif ctype.upper() == "A":
             computerset.add(a.Acceptor(ctype + str(x), network))
+        else:
+            computerset.add(l.Learner(ctype + str(x), network))
 
     return computerset
 
@@ -50,12 +52,13 @@ def set_global_p_id(p_set):
 
 
 
-def simulation(amount_p, amount_a, tmax, E):
+def simulation(amount_p, amount_a, amount_l, tmax, E):
     """"""
 
     N = n.Network()
     A = create_computers(amount_a, "A", N)  # set with acceptors
-    P = create_computers(amount_p, "P", N, A)  # set with proposers
+    L = create_computers(amount_l, "L", N)
+    P = create_computers(amount_p, "P", N, A, L)  # set with proposers
 
     for tick in range(0, tmax):
         if len(N.queue) == 0 and len(E) == 0:
@@ -137,4 +140,4 @@ def output(tick, message=None, broken=None, repair=None, end=None):
         print(f'{tick}:')
 
 
-simulation(2, 3, 100, [[0, [], [], 1, 42], [8, ["P1"], [], None, None], [11, [], [], 2, 37], [26, [], ["P1"], None, None]])
+simulation(2, 3, 1, 100, [[0, [], [], 1, 42], [8, ["P1"], [], None, None], [11, [], [], 2, 37], [26, [], ["P1"], None, None]])

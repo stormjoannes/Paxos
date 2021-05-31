@@ -2,10 +2,11 @@ import message as ms
 
 
 class Proposer(object):
-    def __init__(self, name, network, acceptors):
+    def __init__(self, name, network, acceptors, learners):
         self.name = name
         self.network = network
         self.acceptors = acceptors
+        self.learners = learners
         self.failed = False
         self.begin_id = None
         self.propose_id = None
@@ -72,6 +73,9 @@ class Proposer(object):
             if round(len(self.acceptors) / 2) <= self.accept_count:
                 self.accept_count = 0
                 self.accepted_value = message.value
+                for learner in self.learners:
+                    msg = ms.Message(self, learner, 'succes', 'GEEN IDEE')
+                    self.network.queue_message(msg)
 
             self.count = 0
 
