@@ -74,7 +74,7 @@ class Proposer(object):
                 self.accept_count = 0
                 self.accepted_value = message.value
                 for learner in self.learners:
-                    msg = ms.Message(self, learner, 'succes', 'GEEN IDEE')
+                    msg = ms.Message(self, learner, 'succes', message.value)
                     self.network.queue_message(msg)
 
             self.count = 0
