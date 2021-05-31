@@ -49,6 +49,9 @@ class Learner(object):
             return [index_character, index_following_character]
 
     def receive_message(self, message):
+        """
+            Calls the right function to react to the message.
+        """
         lower_case = message.mtype.lower()
         if lower_case == 'succes':
             self.update_matrix(message)
