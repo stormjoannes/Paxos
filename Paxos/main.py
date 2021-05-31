@@ -11,6 +11,7 @@ def get_input():
     stop = False
     E = []
 
+    print("Als je spaties wilt toevoegen bij de propose value doe dat dat met een '_'. Voorbeeld: 0 PROPOSE 1 nl:_g")
     PAT = input('Proposers, Acceptors, Learners, Ticks: ')
     PAT = PAT.split(' ')
     PAT = [int(x) for x in PAT]
