@@ -69,8 +69,7 @@ class Proposer(object):
                 self.reject_count = 0
                 self.resend()
 
-        if self.count == len(self.acceptors):
-            if round(len(self.acceptors) / 2) <= self.accept_count:
+            elif round(len(self.acceptors) / 2) <= self.accept_count:
                 self.accept_count = 0
                 self.accepted_value = message.value
                 for learner in self.learners:

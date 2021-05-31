@@ -51,7 +51,6 @@ def set_global_p_id(p_set):
         proposer.global_propose_id = highest
 
 
-
 def simulation(amount_p, amount_a, amount_l, tmax, E):
     """"""
 
@@ -121,7 +120,6 @@ def output(tick, message=None, broken=None, repair=None, end=None):
         elif message.mtype == "accept" or "accepted" or "rejected":
             print(f'{tick}: {name} -> {message.dst.name} {message.mtype} n={message.value[0]} v={message.value[1]}')
 
-
     elif broken is not None:
         print(f'{tick}: ** {broken.name} kapot **')
 
@@ -129,15 +127,20 @@ def output(tick, message=None, broken=None, repair=None, end=None):
         print(f'{tick}: ** {repair.name} gerepareerd **')
 
     elif end is not None:
-        print("")
+        # create whiteline before creating consensus line
+        print()
         for proposer in end:
             if proposer.propose_id is not None:
                 print(f'{proposer.name} heeft wel consensus (voorgesteld: {proposer.begin_id}, geaccepteerd: '
                       f'{proposer.accepted_value[1]})')
             else:
                 print(f'{proposer.name} heeft geen consensus.')
-    else:
-        print(f'{tick}:')
 
 
-simulation(2, 3, 1, 100, [[0, [], [], 1, 42], [8, ["P1"], [], None, None], [11, [], [], 2, 37], [26, [], ["P1"], None, None]])
+#simulation(2, 3, 0, 100, [[0, [], [], 1, 42], [8, ["P1"], [], None, None], [11, [], [], 2, 37], [26, [], ["P1"], None, None]])
+simulation(1, 3, 1, 10000, [[0, [], [], 1, "nl: g"], [100, [], [], 1, "nl:ga"],
+                            [200, [], [], 1, "nl:aa"], [300, [], [], 1, "nl:af"],
+                            [400, [], [], 1, "nl:f "], [500, [], [], 1, "en: g"],
+                            [600, [], [], 1, "en:gr"], [700, [], [], 1, "en:re"],
+                            [800, [], [], 1, "en:ea"], [900, [], [], 1, "en:at"],
+                            [1000, [], [], 1, "en:t "]])

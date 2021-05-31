@@ -1,23 +1,40 @@
 import message as ms
 import numpy as np
 
+
 class Learner(object):
     def __init__(self, name, network):
         self.failed = False
         self.name = name
         self.network = network
+        self.nl_matrix = self.create_matrix()
+        self.en_matrix = self.create_matrix()
 
-    def create_matrix(self, line):
+    def create_matrix(self):
         """"Create a matrix for each letter in the alfabet from the given line."""
         # Define all characters that can occur
         characters = 'abcdefghijklmnopqrstuvwxyz '
         # Make empty matrix
         matrix = np.zeros((len(characters) + 1, len(characters) + 1))
+        return matrix
 
-        # Loop thru all characters in the given line and fill the matrix
-        for i in range(0, len(line) - 1):
-            letter = line[i].lower()
-            following_character = line[i + 1].lower()
+    def update_matrix(self, message):
+        """ Update matrix based on the value given in the message """
+        value = message.value[1]
+        cell = self.get_correct_cell(value[3:])
+        if value[0:2] == 'nl':
+            self.nl_matrix[cell[0]][cell[1]] += 1
+        elif value[0:2] == 'en':
+            self.en_matrix[cell[0]][cell[1]] += 1
+
+        return f"Predicted: {value}"
+
+    def get_correct_cell(self, chars):
+        """ Get the correct cell for an matrix based on the characters given """
+        characters = 'abcdefghijklmnopqrstuvwxyz '
+        for i in range(0, len(chars) - 1):
+            letter = chars[i].lower()
+            following_character = chars[i + 1].lower()
 
             if letter in characters:
                 index_character = characters.index(letter)
@@ -29,17 +46,10 @@ class Learner(object):
             else:
                 index_following_character = 27
 
-            matrix[index_character][index_following_character] += 1
-        self.convert_to_percentage(matrix)
+            return [index_character, index_following_character]
 
-    def convert_to_percentage(self, matrix):
-        """"Convert all values in matrix to percentage based on part of the total."""
-        total = np.sum(matrix)
-        for row in range(len(matrix)):
-            for index in range(len(matrix)):
-                matrix[row][index] = matrix[row][index] / total
-        return matrix
+    def receive_message(self, message):
+        lower_case = message.mtype.lower()
+        if lower_case == 'succes':
+            self.update_matrix(message)
 
-    def receive_message(self, msg):
-        if msg.mtype == 'succes':
-            self.create_matrix('PRECIES GEEN IDEE WAAR VANDAAG')
