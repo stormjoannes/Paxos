@@ -21,30 +21,29 @@ def get_input():
         inp = input('Event: ')
 
         inp = inp.split(' ')
-        inp = [x.lower() for x in inp]
+        inp_split = [x.lower() for x in inp]
 
-        if inp == ['']:
+        if inp_split == ['']:
             continue
 
-        elif inp[1] == 'end':
+        elif inp_split[1] == 'end':
             stop = True
 
-        elif inp[1] == "propose":
-            if "_" in inp[-1]:
-                inp[-1] = inp[-1].replace("_", " ")
+        elif inp_split[1] == "propose":
+            if ":" in inp_split[-1] or ":" in inp_split[-2]:
+                if len(inp_split[-1]) == 1:
+                    inp_split[-2] = inp_split[-2] + " " + inp_split[-1]
+                    inp_split.pop()
+                value = inp_split[-1]
+            else:
+                value = int(inp_split[-1])
+            E.append([int(inp_split[0]), [], [], int(inp_split[-2]), value])
 
-            try:
-                value = int(inp[-1])
-            except ValueError:
-                value = inp[-1]
+        elif inp_split[1] == "fail":
+            E.append([int(inp_split[0]), [inp_split[-2][0].upper() + inp_split[-1]], [], None, None])
 
-            E.append([int(inp[0]), [], [], int(inp[-2]), value])
-
-        elif inp[1] == "fail":
-            E.append([int(inp[0]), [inp[-2][0].upper() + inp[-1]], [], None, None])
-
-        elif inp[1] == "recover":
-            E.append([int(inp[0]), [], [inp[-2][0].upper() + inp[-1]], None, None])
+        elif inp_split[1] == "recover":
+            E.append([int(inp_split[0]), [], [inp_split[-2][0].upper() + inp_split[-1]], None, None])
 
         else:
             print("This input is invalid. Pls try again.")
@@ -86,7 +85,7 @@ def get_computer(name, p_set=None, a_set=None):
 
 def set_global_p_id(p_set):
     """
-       updates all proposers global_proposer_id by getting the currently highest propose id
+       Updates all proposers global_proposer_id by getting the currently highest propose id
     """
     id_lst = []
 
