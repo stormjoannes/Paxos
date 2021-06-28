@@ -4,6 +4,7 @@ import learner as l
 import message as m
 import network as n
 
+
 def get_input():
     """
         Creates formatted input for the simulation function by entering the right event commands
@@ -11,7 +12,6 @@ def get_input():
     stop = False
     E = []
 
-    print("Als je spaties wilt toevoegen bij de propose value doe dat dat met een '_'. Voorbeeld: 0 PROPOSE 1 nl:_g")
     PAT = input('Proposers, Acceptors, Learners, Ticks: ')
     PAT = PAT.split(' ')
     PAT = [int(x) for x in PAT]
@@ -34,6 +34,8 @@ def get_input():
                 if len(inp_split[-1]) == 1:
                     inp_split[-2] = inp_split[-2] + " " + inp_split[-1]
                     inp_split.pop()
+                elif len(inp_split[-1]) == 4:
+                    inp_split[-1] += " "
                 value = inp_split[-1]
             else:
                 value = int(inp_split[-1])
@@ -49,6 +51,7 @@ def get_input():
             print("This input is invalid. Pls try again.")
 
     return P, A, L, tmax, E
+
 
 def create_computers(amount:int, ctype:str, network, acceptors=None, learners=None):
     """
